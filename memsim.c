@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 // Class declaration
 typedef struct
@@ -45,7 +46,7 @@ int checkInMemory(int page_number)
 int allocateFrame(int page_number)
 {
 	// to do
-	return;
+	return 0;
 }
 
 /* Selects a victim for eviction/discard according to the replacement algorithm,  returns chosen frame_no  */
@@ -58,7 +59,7 @@ page selectVictim(int page_number, enum repl mode)
 	return (victim);
 }
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 
 	char *tracename;
