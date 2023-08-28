@@ -58,7 +58,7 @@ page selectVictim(int page_number, enum repl mode)
 	return (victim);
 }
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
 
 	char *tracename;
@@ -74,6 +74,14 @@ main(int argc, char *argv[])
 	page Pvictim;
 	FILE *trace;
 
+	/*
+	If there are less than 4 inputs
+	- execution file
+	- the name of the memory trace file to use.
+	- the number of page frames in the simulated memory. 
+	- the page replacement algorithm to use: rand/lru/esc
+	- the mode to run: quiet/debug 
+	*/
 	if (argc < 5)
 	{
 		printf("Usage: ./memsim inputfile numberframes replacementmode debugmode \n");
@@ -119,6 +127,7 @@ main(int argc, char *argv[])
 		}
 	}
 
+	/* Creates the page table structure to record memory allocation */
 	done = createMMU(numFrames);
 	if (done == -1)
 	{
