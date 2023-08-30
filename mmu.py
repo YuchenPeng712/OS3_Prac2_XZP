@@ -7,7 +7,12 @@
 * for the MMU.
 *
 '''
+
+
 class MMU:
+    def __init__(self, frames):
+        pass
+
     def read_memory(self, page_number):
         pass
 
