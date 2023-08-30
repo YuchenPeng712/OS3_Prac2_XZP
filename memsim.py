@@ -29,8 +29,8 @@ def main():
 
     frames = int(sys.argv[2])
     if frames < 1:
-        print("Frame number must be at least 1\n")
-        return
+       print("Frame number must be at least 1\n");
+       return
 
     replacement_mode = sys.argv[3]
 
@@ -45,7 +45,7 @@ def main():
         print("Invalid replacement mode. Valid options are [rand, lru, esc]")
         return
 
-    debug_mode = sys.argv[4]
+    debug_mode  = sys.argv[4]
 
     # Set debug mode
     if debug_mode == "debug":
@@ -62,11 +62,13 @@ def main():
 
     no_events = 0
 
+
     with open(input_file, 'r') as trace_file:
         for trace_line in trace_file:
             trace_cmd = trace_line.strip().split(" ")
             logical_address = int(trace_cmd[0], 16)
-            page_number = logical_address >> PAGE_OFFSET
+            page_number = logical_address >>  PAGE_OFFSET
+
 
             # Process read or write
             if trace_cmd[1] == "R":
@@ -84,9 +86,8 @@ def main():
     print(f"events in trace: {no_events}")
     print(f"total disk reads: {mmu.get_total_disk_reads()}")
     print(f"total disk writes: {mmu.get_total_disk_writes()}")
-    print(f"page fault rate: {mmu.get_total_page_faults() / no_events}")
-
+    print("page fault rate: ", end="")
+    print("{0:.4f}".format(mmu.get_total_page_faults() / no_events))
 
 if __name__ == "__main__":
-    main()
     main()
