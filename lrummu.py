@@ -92,12 +92,14 @@ class LruMMU(MMU):
             # self.total_disk_writes += 1
             self.total_disk_reads += 1
             self.load_page(page_number)
-            self.write.append(page_number)
+            if page_number not in self.write:
+                self.write.append(page_number)
         else:
             if self.debug:
                 print("LRU_MMU: write_memory(): page is found in memory: ", page_number)
             self.queue_update(page_number)
-            self.write.append(page_number)
+            if page_number not in self.write:
+                self.write.append(page_number)
         if self.debug:
             print("LRU_MMU: write_memory(): Finish writing.")
             self.debug_statement()
