@@ -9,11 +9,9 @@ class LruMMU(MMU):
         self.total_disk_reads = 0
         self.total_disk_writes = 0
         self.total_page_faults = 0
-        # initialize page table and order list
-        self.page_table = {}
-        self.order_list = []
-        # initialize debug mode
-        self.debug = False
+        self.order_queue = []
+        self.page_frames = []
+        self.debug = False   # initialize debug mode
 
     def set_debug(self):
         # TODO: Implement the method to set debug mode
@@ -27,61 +25,75 @@ class LruMMU(MMU):
 
     def load_page(self, page_number):
         if self.debug:
-            print("LRU_MMU: load_page: ", page_number, "\n")
-        if len(self.page_table >= self.frames):
+            print("LRU_MMU: load_page(): ", page_number)
+        
+        # if no more empty space 
+        if len(self.page_frames) >= self.frames:
             # if memory is full, replace the least recently used page
-            replace_page = self.page_table.pop(0)
+            replace_page = self.order_queue[0]
             if self.debug:
-                print("LRU_MMU: Page frame is full, remove: ", replace_page, "\n")
+                print("LRU_MMU: load_page(): Page frame is full, remove: ", replace_page)
             # remove previous page
-            del replace_page
-            # load the current page into memory
-            self.page_table[page_number] = True
-            self.order_list.append(page_number)
+            self.page_frames.remove(replace_page)
+            self.page_frames.append(page_number)
+            self.order_queue.remove(replace_page)
+            self.order_queue.append(page_number)
         else:
-            print("LRU_MMU: Page frame is available: ", replace_page, "\n")
-            # load the current page into memory
-            self.page_table[page_number] = True
-            self.order_list.append(page_number)
+            if self.debug:
+                print("LRU_MMU: load_page(): Page frame is available: ", page_number)
+            self.order_queue.append(page_number)
+            self.page_frames.append(page_number)
+        
         if self.debug:
-            print("LRU_MMU: Stop loading.", "\n")
+            print("LRU_MMU: Finish loading.", "\n")
+
+    def queue_update(self, page_number):
+        self.order_queue.remove(page_number)
+        self.order_queue.append(page_number)
 
     def read_memory(self, page_number):
         # TODO: Implement the method to read memory
         if self.debug:
-            print("LRU_MMU: read memory: ", page_number, "\n")
+            print("LRU_MMU: read_memory(): ", page_number)
+
         # if current page not in the page table, will cause page fault
-        if page_number not in self.page_table:
+        if page_number not in self.page_frames:
             if self.debug:
-                print("LRU_MMU: page is not found in memory: ", page_number, "\n")
+                print("LRU_MMU: read_memory(): page is not found in memory: ", page_number)
             self.total_page_faults += 1
             # read in a new page
-            self.total_page_reads += 1
+            self.total_disk_reads += 1
             # load current page
             self.load_page(page_number)
         else:
             if self.debug:
-                print("LRU_MMU: page is found in memory: ", page_number, "\n")
+                print("LRU_MMU: read_memory(): page is found in memory: ", page_number, " Updating the order queue")
+            # update
+            self.queue_update(page_number)
+            self.total_disk_reads += 1
         if self.debug:
-            print("LRU_MMU: stop reading.", "\n")
+            print("LRU_MMU: read_memory(): Finish reading.", "\n")
 
     def write_memory(self, page_number):
         # TODO: Implement the method to write memory
         if self.debug:
-            print("LRU_MMU: write memory: ", page_number, "\n")
+            print("LRU_MMU: write_memory(): write memory: ", page_number)
+
         # if current page not in the page table, will cause page fault
-        if page_number not in self.page_table:
+        if page_number not in self.page_frames:
             if self.debug:
-                print("LRU_MMU: page is not found in memory: ", page_number, "\n")
+                print("LRU_MMU: write_memory(): page is not found in memory: ", page_number)
             self.total_page_faults += 1
             self.total_disk_writes += 1
             # write page into memory
             self.load_page(page_number)
         else:
             if self.debug:
-                print("LRU_MMU: page is found in memory: ", page_number, "\n")
+                print("LRU_MMU: write_memory(): page is found in memory: ", page_number)
+            self.queue_update(page_number)
+            self.total_disk_writes += 1
         if self.debug:
-            print("LRU_MMU: stop writing.", "\n")
+            print("LRU_MMU: write_memory(): Finish writing.", "\n")
 
     def get_total_disk_reads(self):
         # TODO: Implement the method to get total disk reads
