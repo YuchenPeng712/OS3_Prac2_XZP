@@ -11,6 +11,7 @@ class LruMMU(MMU):
         self.total_page_faults = 0
         self.order_queue = []
         self.page_frames = []
+        self.write = []
         self.debug = False   # initialize debug mode
 
     def set_debug(self):
@@ -34,6 +35,9 @@ class LruMMU(MMU):
             if self.debug:
                 print("LRU_MMU: load_page(): Page frame is full, remove: ", replace_page)
             # remove previous page
+            if replace_page in self.write:
+                self.total_disk_writes += 1
+                self.write.remove(replace_page)
             self.page_frames.remove(replace_page)
             self.page_frames.append(page_number)
             self.order_queue.remove(replace_page)
@@ -71,7 +75,8 @@ class LruMMU(MMU):
             # update
             self.queue_update(page_number)
         if self.debug:
-            print("LRU_MMU: read_memory(): Finish reading.", "\n")
+            print("LRU_MMU: read_memory(): Finish reading.")
+            self.debug_statement()
 
     def write_memory(self, page_number):
         # TODO: Implement the method to write memory
@@ -83,15 +88,19 @@ class LruMMU(MMU):
             if self.debug:
                 print("LRU_MMU: write_memory(): page is not found in memory: ", page_number)
             self.total_page_faults += 1
-            self.total_disk_writes += 1
             # write page into memory
+            # self.total_disk_writes += 1
+            self.total_disk_reads += 1
             self.load_page(page_number)
+            self.write.append(page_number)
         else:
             if self.debug:
                 print("LRU_MMU: write_memory(): page is found in memory: ", page_number)
             self.queue_update(page_number)
+            self.write.append(page_number)
         if self.debug:
-            print("LRU_MMU: write_memory(): Finish writing.", "\n")
+            print("LRU_MMU: write_memory(): Finish writing.")
+            self.debug_statement()
 
     def get_total_disk_reads(self):
         # TODO: Implement the method to get total disk reads
@@ -104,3 +113,12 @@ class LruMMU(MMU):
     def get_total_page_faults(self):
         # TODO: Implement the method to get total page faults
         return self.total_page_faults
+
+    def debug_statement(self):
+        print("Current order_queue: ", self.order_queue)
+        print("Current page_frames: ", self.page_frames)
+        print("Current write: ", self.write)
+        print("total_disk_reads: ", self.total_disk_reads)
+        print("total_disk_writes: ", self.total_disk_writes)
+        print("total_page_faults: ", self.total_page_faults)
+        print("\n")
