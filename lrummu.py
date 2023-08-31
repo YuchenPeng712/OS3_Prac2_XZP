@@ -45,7 +45,7 @@ class LruMMU(MMU):
             self.page_frames.append(page_number)
         
         if self.debug:
-            print("LRU_MMU: Finish loading.", "\n")
+            print("LRU_MMU: Finish loading.")
 
     def queue_update(self, page_number):
         self.order_queue.remove(page_number)
@@ -70,7 +70,6 @@ class LruMMU(MMU):
                 print("LRU_MMU: read_memory(): page is found in memory: ", page_number, " Updating the order queue")
             # update
             self.queue_update(page_number)
-            self.total_disk_reads += 1
         if self.debug:
             print("LRU_MMU: read_memory(): Finish reading.", "\n")
 
@@ -91,7 +90,6 @@ class LruMMU(MMU):
             if self.debug:
                 print("LRU_MMU: write_memory(): page is found in memory: ", page_number)
             self.queue_update(page_number)
-            self.total_disk_writes += 1
         if self.debug:
             print("LRU_MMU: write_memory(): Finish writing.", "\n")
 
