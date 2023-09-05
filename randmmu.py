@@ -10,6 +10,7 @@ class RandMMU(MMU):
         self.count_disk_writes = 0          # count number of disk writes action
         self.count_page_faults = 0          # count number of page faults
         self.page_frames =[]                # store page frames in current physical address
+        self.write = []                     # store modified pages
 
     def set_debug(self):
         # TODO: Implement the method to set debug mode
@@ -34,6 +35,9 @@ class RandMMU(MMU):
             frame_to_replace = random.choice(self.page_frames)
             if self.debug:
                 print("RandMMU: load_page():  Page replacement happens, load ", page_number," replace ", frame_to_replace, "\n")
+            if frame_to_replace in self.write:
+                self.total_disk_writes += 1
+                self.write.remove(frame_to_replace)
             self.page_frames.remove(frame_to_replace)
             self.page_frames.append(page_number)
         #
@@ -53,9 +57,9 @@ class RandMMU(MMU):
             if self.debug:
                 print("RandMMU: read_memory():  ", page_number," is not loaded in memory.\n")
                 # load the page & increase the page fault count and disk read count
-                self.count_page_faults = self.count_page_faults + 1
-                self.count_disk_reads = self.count_disk_reads + 1
-                self.load_page(page_number)
+            self.count_page_faults = self.count_page_faults + 1
+            self.count_disk_reads = self.count_disk_reads + 1
+            self.load_page(page_number)
         #
         if self.debug:
             print("RandMMU: read_memory():  Finish reading", page_number,"\n")
@@ -64,18 +68,25 @@ class RandMMU(MMU):
         # TODO: Implement the method to write memory
         if self.debug:
             print("RandMMU: write_memory():  Start writing", page_number,"\n")
+            
         # if page frame is loaded in memory
         if page_number in self.page_frames:
             if self.debug:
                 print("RandMMU: write_memory():  ", page_number," is loaded in memory.\n")
+            # append modified pages
+            if page_number not in self.write:
+                self.write.append(page_number)
         # if page frame is not loaded in memory
         else:
             if self.debug:
                 print("RandMMU: write_memory():  ", page_number," is not loaded in memory.\n")
                 # load the page & increase the page fault counts
-                self.count_page_faults = self.count_page_faults + 1
-                self.count_disk_writes = self.count_disk_writes + 1
-                self.load_page(page_number)
+            self.count_page_faults = self.count_page_faults + 1
+            self.count_disk_reads = self.count_disk_reads + 1
+            self.load_page(page_number)
+            # append modified pages
+            if page_number not in self.write:
+                self.write.append(page_number)
         #
         if self.debug:
             print("RandMMU: write_memory():  Finish writing", page_number,"\n")
