@@ -36,7 +36,7 @@ class RandMMU(MMU):
             if self.debug:
                 print("RandMMU: load_page():  Page replacement happens, load ", page_number," replace ", frame_to_replace, "\n")
             if frame_to_replace in self.write:
-                self.total_disk_writes += 1
+                self.count_disk_writes += 1
                 self.write.remove(frame_to_replace)
             self.page_frames.remove(frame_to_replace)
             self.page_frames.append(page_number)
