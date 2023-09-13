@@ -27,8 +27,8 @@ class TestMainFunction(unittest.TestCase):
             line_handle = []
             for m in mmu:
                 output = []
-                
-                for k in range(1, 122):
+                print("CurrentTrace: ", traces[i], " Current MMU: ", m)
+                for k in range(1, 101):
                     with self.subTest(param=i):
                     # 构建参数列表，类似 ["main.py", "func1", "func2", "func3", "func4"]
                         args  = ["memsim.py"] + [traces[i],k,m,"quiet"]
@@ -41,7 +41,6 @@ class TestMainFunction(unittest.TestCase):
                 
                                
                 #output写入名为m的文件 路径为./output/traces[i]/m.txt，m是mmu的名称。output每个元素占一行，前面加上行号+1
-               
 
                 f = open('./output/'+traces[i]+'/'+m+'.txt','w')
                 for j in range(len(output)):
@@ -50,26 +49,26 @@ class TestMainFunction(unittest.TestCase):
                
                 line1_handle, = ax.plot(range(1,len(output)+1),output,  linestyle='-',label=m)
                 line_handle.append(line1_handle)
-                
-                #显示最接近0.05的值
-                min = 100
+
+                nearest_x = None
+                nearest_y = None
+                nearest_distance = float('inf')
+
                 for j in range(len(output)):
-                    if abs(output[j]-0.05) < min:
-                        min = abs(output[j]-0.05)
-                        index = j
-                index+=1
-                ax.plot(index,output[index-1], 'ro')
-                #显示最接近0.05的坐标
-                ax.annotate('(%d,%.3f)'%(index,output[index-1]), xy=(index, output[index-1]), xytext=(index, output[index-1]+0.01))
-                # #显示x为60和120时的值
-                # ax.plot(60,output[60], 'ro')
-                # ax.annotate('(%d,%.3f)'%(60,output[60]), xy=(60, output[60]), xytext=(60, output[60]+0.01))
-                # ax.plot(120,output[120], 'ro')
-                # ax.annotate('(%d,%.3f)'%(120,output[120]), xy=(120, output[120]), xytext=(120, output[120]+0.01))
-                
+                    if output[j] > 0.95:
+                        distance = abs(output[j] - 0.95)
+                        if distance < nearest_distance:
+                            nearest_distance = distance
+                            nearest_x = j + 1
+                            nearest_y = output[j]
+
+                if nearest_x is not None:
+                    ax.plot(nearest_x, nearest_y, 'ro')
+                    ax.annotate('(%d, %.3f)' % (nearest_x, nearest_y), xy=(nearest_x, nearest_y), xytext=(nearest_x, nearest_y + 0.01))
 
 
-                
+            ax.set_xlabel('Page Frame Count')
+            ax.set_ylabel('Hit Rate')
             ax.legend(handles=line_handle, loc='upper right')
                
                 

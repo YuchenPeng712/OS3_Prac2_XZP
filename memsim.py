@@ -89,7 +89,7 @@ def main():
     print(f"total disk writes: {mmu.get_total_disk_writes()}")
     print("page fault rate: ", end="")
     print("{0:.4f}".format(mmu.get_total_page_faults() / no_events))
-    return mmu.get_total_page_faults()/no_events
+    return (no_events-mmu.get_total_page_faults())/no_events
 
 if __name__ == "__main__":
     main()
